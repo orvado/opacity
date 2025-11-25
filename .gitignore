@@ -1,0 +1,86 @@
+# Build directories
+build/
+bin/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+x64/
+x86/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+*.cmake
+
+# Visual Studio files
+*.vcxproj.user
+*.vcxproj.filters
+*.sln.cache
+.vs/
+*.suo
+*.user
+*.aps
+*.pch
+*.ipch
+*.iobj
+*.ipdb
+*.ilk
+*.pdb
+*.obj
+*.lib
+*.exp
+*.idb
+*.res
+*.exe.manifest
+
+# vcpkg artifacts
+vcpkg_installed/
+packages/
+downloads/
+buildtrees/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+logs/
+
+# OS specific files (Windows)
+Thumbs.db
+Desktop.ini
+.DS_Store
+._*
+
+# IDE files
+.vscode/settings.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Package management
+conan/
+node_modules/
+
+# Test artifacts
+test_results/
+*.gcov
+*.gcda
+*.gcno
+coverage/
+
+# Documentation build
+docs/_build/
+*.pdf
+*.html
+SETUP_COMPLETE.md
+SETUP_CHECKLIST.md
