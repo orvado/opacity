@@ -12,20 +12,46 @@ namespace opacity::filesystem
     using core::Path;
 
     /**
+     * @brief File type classification
+     */
+    enum class FileType
+    {
+        Unknown,
+        Directory,
+        Text,
+        Image,
+        Audio,
+        Video,
+        Archive,
+        Document,
+        Executable,
+        Code,
+        Data
+    };
+
+    /**
+     * @brief Determine file type from filename/extension
+     */
+    FileType DetermineFileType(const std::string& filename);
+
+    /**
      * @brief Represents a filesystem item (file or folder)
      */
     struct FsItem
     {
         std::string name;
+        std::string path;           // String path for compatibility
         Path full_path;
         bool is_directory = false;
         bool is_symlink = false;
         uint64_t size = 0;
-        std::chrono::system_clock::time_point modified;
+        std::chrono::system_clock::time_point modified_time;
+        std::chrono::system_clock::time_point modified;     // Alias
         std::chrono::system_clock::time_point created;
         uint32_t attributes = 0;
         std::string extension;
         std::string mime_type;
+        FileType type = FileType::Unknown;
 
         // Windows file attribute constants
         static constexpr uint32_t ATTR_READONLY = 0x1;

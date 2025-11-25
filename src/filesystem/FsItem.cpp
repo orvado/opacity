@@ -4,10 +4,82 @@
 #include <ctime>
 #include <cctype>
 #include <unordered_map>
+#include <unordered_set>
 #include <regex>
+#include <algorithm>
 
 namespace opacity::filesystem
 {
+
+// ============================================================================
+// FileType Helper
+// ============================================================================
+
+FileType DetermineFileType(const std::string& filename)
+{
+    // Get extension
+    auto pos = filename.rfind('.');
+    if (pos == std::string::npos || pos == 0)
+    {
+        return FileType::Unknown;
+    }
+
+    std::string ext = filename.substr(pos + 1);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+    // Image formats
+    static const std::unordered_set<std::string> image_exts = {
+        "jpg", "jpeg", "png", "gif", "bmp", "ico", "tiff", "tif", 
+        "webp", "svg", "psd", "raw", "heic", "heif"
+    };
+
+    // Audio formats
+    static const std::unordered_set<std::string> audio_exts = {
+        "mp3", "wav", "flac", "aac", "ogg", "wma", "m4a", "opus"
+    };
+
+    // Video formats
+    static const std::unordered_set<std::string> video_exts = {
+        "mp4", "avi", "mkv", "mov", "wmv", "flv", "webm", "m4v", "mpeg", "mpg"
+    };
+
+    // Archive formats
+    static const std::unordered_set<std::string> archive_exts = {
+        "zip", "rar", "7z", "tar", "gz", "bz2", "xz", "cab", "iso"
+    };
+
+    // Document formats
+    static const std::unordered_set<std::string> document_exts = {
+        "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "rtf"
+    };
+
+    // Code formats
+    static const std::unordered_set<std::string> code_exts = {
+        "cpp", "c", "h", "hpp", "cs", "java", "py", "js", "ts", "html", "css",
+        "php", "rb", "go", "rs", "swift", "kt", "scala", "lua", "sh", "bash", "ps1"
+    };
+
+    // Text formats
+    static const std::unordered_set<std::string> text_exts = {
+        "txt", "md", "log", "cfg", "ini", "json", "xml", "yaml", "yml", "csv"
+    };
+
+    // Executable formats
+    static const std::unordered_set<std::string> exe_exts = {
+        "exe", "dll", "sys", "msi", "bat", "cmd", "com"
+    };
+
+    if (image_exts.count(ext)) return FileType::Image;
+    if (audio_exts.count(ext)) return FileType::Audio;
+    if (video_exts.count(ext)) return FileType::Video;
+    if (archive_exts.count(ext)) return FileType::Archive;
+    if (document_exts.count(ext)) return FileType::Document;
+    if (code_exts.count(ext)) return FileType::Code;
+    if (text_exts.count(ext)) return FileType::Text;
+    if (exe_exts.count(ext)) return FileType::Executable;
+
+    return FileType::Unknown;
+}
 
 // ============================================================================
 // FsItem Implementation

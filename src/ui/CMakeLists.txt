@@ -8,6 +8,7 @@ add_library(opacity_ui
     KeybindManager.cpp
     AdvancedSearchDialog.cpp
     DiffViewer.cpp
+    CommandPalette.cpp
 )
 
 target_include_directories(opacity_ui 

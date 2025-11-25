@@ -2,6 +2,7 @@ add_library(opacity_core
     Logger.cpp
     Config.cpp
     Path.cpp
+    ShellIntegration.cpp
 )
 
 target_include_directories(opacity_core 

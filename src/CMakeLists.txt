@@ -7,6 +7,8 @@ add_subdirectory(ui)
 add_subdirectory(search)
 add_subdirectory(preview)
 add_subdirectory(diff)
+add_subdirectory(archive)
+add_subdirectory(batch)
 
 # Main application executable
 add_executable(opacity
@@ -16,6 +18,7 @@ add_executable(opacity
 target_include_directories(opacity 
     PRIVATE 
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/external
 )
 
 # Link all subsystem libraries
@@ -27,6 +30,8 @@ target_link_libraries(opacity
     opacity_search
     opacity_preview
     opacity_diff
+    opacity_archive
+    opacity_batch
     imgui::imgui
     spdlog::spdlog
     nlohmann_json::nlohmann_json

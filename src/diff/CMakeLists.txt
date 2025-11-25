@@ -1,5 +1,6 @@
 add_library(opacity_diff
     DiffEngine.cpp
+    FolderComparison.cpp
 )
 
 target_include_directories(opacity_diff 
