@@ -1,6 +1,8 @@
 add_library(opacity_filesystem
     FsItem.cpp
     FileSystemManager.cpp
+    OperationQueue.cpp
+    FileWatch.cpp
 )
 
 target_include_directories(opacity_filesystem 
@@ -12,6 +14,7 @@ target_link_libraries(opacity_filesystem
     PRIVATE
     opacity_core
     spdlog::spdlog
+    imgui::imgui
 )
 
 set_target_properties(opacity_filesystem PROPERTIES

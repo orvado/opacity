@@ -2,6 +2,12 @@ add_library(opacity_ui
     MainWindow.cpp
     Theme.cpp
     ImGuiBackend.cpp
+    FilePane.cpp
+    TabManager.cpp
+    LayoutManager.cpp
+    KeybindManager.cpp
+    AdvancedSearchDialog.cpp
+    DiffViewer.cpp
 )
 
 target_include_directories(opacity_ui 
@@ -13,6 +19,8 @@ target_link_libraries(opacity_ui
     PRIVATE
     opacity_core
     opacity_filesystem
+    opacity_search
+    opacity_diff
     imgui::imgui
     spdlog::spdlog
     d3d11

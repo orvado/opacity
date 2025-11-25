@@ -1,8 +1,15 @@
 #pragma once
 
 #include "opacity/ui/ImGuiBackend.h"
+#include "opacity/ui/LayoutManager.h"
+#include "opacity/ui/KeybindManager.h"
+#include "opacity/ui/Theme.h"
+#include "opacity/ui/AdvancedSearchDialog.h"
+#include "opacity/ui/DiffViewer.h"
 #include "opacity/filesystem/FileSystemManager.h"
 #include "opacity/filesystem/FsItem.h"
+#include "opacity/filesystem/OperationQueue.h"
+#include "opacity/filesystem/FileWatch.h"
 #include "opacity/preview/PreviewManager.h"
 #include "opacity/search/SearchEngine.h"
 #include <memory>
@@ -153,6 +160,22 @@ namespace opacity::ui
         // Search/filter
         char search_buffer_[256] = "";
         bool search_active_ = false;
+
+        // Phase 2 components
+        std::unique_ptr<LayoutManager> layout_manager_;
+        std::unique_ptr<KeybindManager> keybind_manager_;
+        std::unique_ptr<Theme> current_theme_;
+        std::unique_ptr<AdvancedSearchDialog> advanced_search_dialog_;
+        std::unique_ptr<DiffViewer> diff_viewer_;
+        std::unique_ptr<filesystem::OperationQueue> operation_queue_;
+        std::unique_ptr<filesystem::FileWatch> file_watch_;
+        filesystem::WatchHandle current_watch_handle_ = 0;
+
+        // Phase 2 UI state
+        bool show_layout_selector_ = false;
+        bool show_keybind_editor_ = false;
+        bool show_theme_editor_ = false;
+        bool show_operation_progress_ = false;
 
         // Window state
         bool running_ = false;

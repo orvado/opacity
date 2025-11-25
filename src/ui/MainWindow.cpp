@@ -21,7 +21,17 @@ MainWindow::MainWindow()
     , fs_manager_(std::make_unique<filesystem::FileSystemManager>())
     , preview_manager_(std::make_unique<preview::PreviewManager>())
     , search_engine_(std::make_unique<search::SearchEngine>())
+    , keybind_manager_(std::make_unique<KeybindManager>())
+    , current_theme_(std::make_unique<Theme>())
+    , advanced_search_dialog_(std::make_unique<AdvancedSearchDialog>())
+    , diff_viewer_(std::make_unique<DiffViewer>())
+    , operation_queue_(std::make_unique<filesystem::OperationQueue>())
+    , file_watch_(std::make_unique<filesystem::FileWatch>())
 {
+    // Create layout manager with shared_ptr version of fs_manager
+    auto fs_shared = std::shared_ptr<filesystem::FileSystemManager>(
+        fs_manager_.get(), [](filesystem::FileSystemManager*) {}); // Non-owning shared_ptr
+    layout_manager_ = std::make_unique<LayoutManager>(fs_shared);
 }
 
 MainWindow::~MainWindow()
@@ -55,6 +65,24 @@ bool MainWindow::Initialize()
     // Load initial directory
     RefreshCurrentDirectory();
 
+    // Initialize Phase 2 components
+    current_theme_->Initialize();  // Initialize and apply default theme
+    
+    // Try to load saved keybinds
+    keybind_manager_->LoadKeybinds("keybinds.json");
+    
+    // Start file watcher
+    file_watch_->Start();
+    
+    // Set up file watch for current directory
+    auto watch_callback = [this](const filesystem::FileChangeEvent& event) {
+        // Refresh on any file change
+        SPDLOG_DEBUG("File change detected: {} ({})", 
+            event.path.String(), 
+            static_cast<int>(event.type));
+    };
+    current_watch_handle_ = file_watch_->Watch(core::Path(current_path_), watch_callback);
+
     running_ = true;
     SPDLOG_INFO("MainWindow initialized successfully. Starting at: {}", current_path_);
     return true;
@@ -72,6 +100,18 @@ void MainWindow::Shutdown()
     {
         search_engine_->CancelSearch();
         search_engine_->WaitForCompletion();
+    }
+    
+    // Stop Phase 2 components
+    if (file_watch_)
+    {
+        file_watch_->Stop();
+    }
+    
+    // Save keybinds
+    if (keybind_manager_)
+    {
+        keybind_manager_->SaveKeybinds("keybinds.json");
     }
     
     // Release preview resources
@@ -145,6 +185,27 @@ void MainWindow::Run()
         
         // Render search results window if active
         RenderSearchResults();
+        
+        // Render Phase 2 dialogs
+        if (advanced_search_dialog_)
+        {
+            advanced_search_dialog_->Render();
+        }
+        if (diff_viewer_)
+        {
+            diff_viewer_->Render();
+        }
+        
+        // Render operation progress using OperationQueue's built-in UI
+        if (show_operation_progress_ && operation_queue_)
+        {
+            ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
+            if (ImGui::Begin("Operations", &show_operation_progress_))
+            {
+                operation_queue_->RenderUI();
+            }
+            ImGui::End();
+        }
 
         backend_->EndFrame();
     }
@@ -175,6 +236,23 @@ void MainWindow::HandleFileMenu()
         
         if (ImGui::MenuItem("Open", "Enter"))
             OpenSelectedItems();
+        
+        if (ImGui::MenuItem("Compare Files...", "Ctrl+D"))
+        {
+            // Get selected files for comparison
+            std::vector<std::string> selected;
+            for (size_t i = 0; i < current_items_.size() && i < selection_.size(); ++i)
+            {
+                if (selection_[i] && !current_items_[i].is_directory)
+                {
+                    selected.push_back(current_items_[i].full_path.String());
+                }
+            }
+            if (selected.size() >= 2 && diff_viewer_)
+            {
+                diff_viewer_->CompareFiles(selected[0], selected[1]);
+            }
+        }
         
         ImGui::Separator();
         
@@ -213,6 +291,16 @@ void MainWindow::HandleEditMenu()
         
         if (ImGui::MenuItem("Invert Selection"))
             InvertSelection();
+        
+        ImGui::Separator();
+        
+        if (ImGui::MenuItem("Advanced Search...", "Ctrl+Shift+F"))
+        {
+            if (advanced_search_dialog_)
+            {
+                advanced_search_dialog_->Show();
+            }
+        }
         
         ImGui::EndMenu();
     }
@@ -255,6 +343,47 @@ void MainWindow::HandleViewMenu()
         }
         
         if (ImGui::MenuItem("Preview Panel", "Ctrl+P", &show_preview_panel_))
+        {
+            // Toggle handled by checkbox
+        }
+        
+        ImGui::Separator();
+        
+        if (ImGui::BeginMenu("Layout"))
+        {
+            if (layout_manager_)
+            {
+                auto current_layout = layout_manager_->GetLayout();
+                if (ImGui::MenuItem("Single Pane", nullptr, current_layout == LayoutType::Single))
+                    layout_manager_->SetLayout(LayoutType::Single);
+                if (ImGui::MenuItem("Dual Pane (Vertical)", nullptr, current_layout == LayoutType::DualVertical))
+                    layout_manager_->SetLayout(LayoutType::DualVertical);
+                if (ImGui::MenuItem("Dual Pane (Horizontal)", nullptr, current_layout == LayoutType::DualHorizontal))
+                    layout_manager_->SetLayout(LayoutType::DualHorizontal);
+            }
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("Theme"))
+        {
+            if (ImGui::MenuItem("Dark Theme"))
+            {
+                current_theme_->ApplyDarkTheme();
+            }
+            if (ImGui::MenuItem("Light Theme"))
+            {
+                current_theme_->ApplyLightTheme();
+            }
+            if (ImGui::MenuItem("High Contrast"))
+            {
+                current_theme_->ApplyHighContrastTheme();
+            }
+            ImGui::EndMenu();
+        }
+        
+        ImGui::Separator();
+        
+        if (ImGui::MenuItem("Operations...", nullptr, &show_operation_progress_))
         {
             // Toggle handled by checkbox
         }
