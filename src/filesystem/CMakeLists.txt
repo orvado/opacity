@@ -3,6 +3,8 @@ add_library(opacity_filesystem
     FileSystemManager.cpp
     OperationQueue.cpp
     FileWatch.cpp
+    NetworkStorage.cpp
+    CloudIntegration.cpp
 )
 
 target_include_directories(opacity_filesystem 
@@ -15,6 +17,9 @@ target_link_libraries(opacity_filesystem
     opacity_core
     spdlog::spdlog
     imgui::imgui
+    mpr
+    netapi32
+    ws2_32
 )
 
 set_target_properties(opacity_filesystem PROPERTIES

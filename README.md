@@ -4,7 +4,7 @@ A modern, high-performance file manager for Windows, built with C++ and Dear ImG
 
 ## Project Status
 
-**Current Phase:** Phase 2: Enhanced Interface & Advanced Operations Complete ✅  
+**Current Phase:** Phase 4: Polish & Extensibility Complete ✅  
 **Target Platform:** Windows 10+  
 **Language:** C++17/20  
 **GUI Framework:** Dear ImGui with DirectX 11
@@ -19,6 +19,12 @@ A modern, high-performance file manager for Windows, built with C++ and Dear ImG
 - ✅ **File/Folder Diff** – Compare files and folders visually (Phase 2-3)
 - ✅ **Batch Operations** – Rename, copy, move, delete with progress (Phase 1-2)
 - ✅ **Customization** – Themes, hotkeys, layouts, presets (Phases 1-3)
+- ✅ **Archive Management** – ZIP, RAR, 7z support with compression/decompression (Phase 3)
+- ✅ **System Integration** – Shell extensions, command palette, system tray (Phase 3)
+- ✅ **Plugin Architecture** – DLL-based extensibility with manifest system (Phase 4)
+- ✅ **Network & Cloud** – UNC paths, OneDrive/Dropbox sync status, FTP support (Phase 4)
+- ✅ **Advanced Indexing** – Full-text search with content indexing (Phase 4)
+- ✅ **Crash Recovery** – Auto-save, session recovery, crash dumps (Phase 4)
 
 ## Architecture
 
@@ -27,12 +33,16 @@ Opacity/
 ├── Core Subsystem
 │   ├── Logger (file-based logging)
 │   ├── Config (JSON-based settings)
-│   └── Path (filesystem abstraction)
+│   ├── Path (filesystem abstraction)
+│   ├── PluginManager (DLL plugin system)
+│   └── CrashRecovery (auto-save, crash dumps)
 ├── Filesystem Subsystem
 │   ├── FsItem (file/folder model)
 │   ├── FileSystemManager (operations)
 │   ├── OperationQueue (batch operations)
-│   └── FileWatch (directory monitoring)
+│   ├── FileWatch (directory monitoring)
+│   ├── NetworkStorage (UNC paths, FTP)
+│   └── CloudIntegration (OneDrive, Dropbox sync)
 ├── UI Subsystem
 │   ├── MainWindow (application window)
 │   ├── Theme (light/dark/high-contrast themes)
@@ -41,17 +51,27 @@ Opacity/
 │   ├── FilePane (individual file panes)
 │   ├── KeybindManager (customizable shortcuts)
 │   ├── AdvancedSearchDialog (advanced search)
-│   └── DiffViewer (diff visualization)
+│   ├── DiffViewer (diff visualization)
+│   ├── CommandPalette (quick actions)
+│   └── SystemTray (notifications, menu)
 ├── Search Subsystem
 │   ├── SearchEngine (query processing)
-│   └── FilterEngine (filtering logic)
+│   ├── FilterEngine (filtering logic)
+│   └── SearchIndex (content indexing)
 ├── Preview Subsystem
 │   ├── PreviewManager (handler coordination)
 │   ├── ImagePreviewHandler
 │   ├── TextPreviewHandler
 │   └── (Media handlers – Phase 2+)
-└── Diff Subsystem
-    └── DiffEngine (comparison logic)
+├── Archive Subsystem
+│   ├── ArchiveManager (ZIP, RAR, 7z)
+│   └── BatchRename (bulk operations)
+├── Diff Subsystem
+│   ├── DiffEngine (comparison logic)
+│   └── FolderComparison (directory sync)
+└── Batch Subsystem
+    ├── DuplicateFinder (duplicate detection)
+    └── BatchRename (bulk rename operations)
 ```
 
 ## Build Environment
@@ -93,19 +113,23 @@ For detailed setup instructions, see [BUILD_SETUP.md](BUILD_SETUP.md).
 - ✅ Directory change monitoring and real-time updates
 - ✅ Tabbed browsing with history and customization
 
-### Phase 3: Power Features & Integration (6-8 weeks) 🔄 NEXT
-- Folder comparison and sync
-- Archive management
-- System integration (shell, CLI)
-- Real-time monitoring
-- Advanced customization
+### Phase 3: Power Features & Integration (6-8 weeks) ✅ COMPLETE
+- ✅ Folder comparison and synchronization
+- ✅ Archive management (ZIP, RAR, 7z compression/decompression)
+- ✅ System integration (shell extensions, command palette)
+- ✅ System tray notifications and quick access
+- ✅ Batch rename operations with patterns
+- ✅ Duplicate file detection and management
+- ✅ Real-time monitoring enhancements
 
-### Phase 4: Polish & Extensibility (4-6 weeks)
-- Plugin architecture
-- Advanced media support
-- Network/cloud features
-- Comprehensive testing
-- Documentation
+### Phase 4: Polish & Extensibility (4-6 weeks) ✅ COMPLETE
+- ✅ Plugin architecture with DLL-based extensibility
+- ✅ Advanced search indexing with full-text content search
+- ✅ Network storage support (UNC paths, FTP, server browsing)
+- ✅ Cloud integration (OneDrive, Dropbox, Google Drive sync status)
+- ✅ Crash recovery with auto-save and session restoration
+- ✅ System tray integration with notifications
+- ✅ Comprehensive error handling and logging
 
 See [_plan/phased-development-plan.md](_plan/phased-development-plan.md) for detailed phase requirements.
 
@@ -132,6 +156,36 @@ See [_plan/phased-development-plan.md](_plan/phased-development-plan.md) for det
 - Menu system updated with new features
 - File watching for current directory changes
 - Progress dialogs for long-running operations
+
+## Phase 3 Features Implemented
+
+### Archive & Batch Operations
+- **ArchiveManager**: Full ZIP, RAR, 7z support with compression/decompression
+- **BatchRename**: Pattern-based bulk rename operations with preview
+- **DuplicateFinder**: Intelligent duplicate file detection and management
+- **FolderComparison**: Directory synchronization and comparison
+
+### System Integration
+- **CommandPalette**: Quick action launcher with fuzzy search
+- **SystemTray**: Windows system tray integration with notifications
+- **ShellIntegration**: Windows shell extensions and context menu integration
+
+## Phase 4 Features Implemented
+
+### Plugin Architecture
+- **PluginManager**: DLL-based plugin system with manifest validation
+- **Plugin Security**: Sandboxing and version compatibility checking
+- **Plugin Lifecycle**: Load/unload with dependency resolution
+
+### Network & Cloud Features
+- **NetworkStorage**: UNC path handling, FTP support, server browsing
+- **CloudIntegration**: OneDrive, Dropbox, Google Drive sync status detection
+- **Drive Management**: Network drive connection and monitoring
+
+### Advanced Search & Reliability
+- **SearchIndex**: Full-text content indexing with trigram search
+- **CrashRecovery**: Auto-save, session recovery, crash dump generation
+- **Error Handling**: Comprehensive logging and error recovery
 
 ## Documentation
 
@@ -223,13 +277,13 @@ To be determined (likely MIT or similar open-source)
 |----------|-----------|---------|
 | Weeks 1-4 | Phase 1: Core explorer MVP | ✅ Complete |
 | Weeks 5-9 | Phase 2: Advanced operations | ✅ Complete |
-| Weeks 10-15 | Phase 3: Power features & integration | 🔄 In Progress |
-| Weeks 16-19 | Phase 4: Polish & extensibility | ⏳ Planned |
-| Week 20+ | Release candidate & optimization | ⏳ Planned |
+| Weeks 10-15 | Phase 3: Power features & integration | ✅ Complete |
+| Weeks 16-19 | Phase 4: Polish & extensibility | ✅ Complete |
+| Week 20+ | Release candidate & optimization | 🔄 Next |
 
 ## Support & Feedback
 
-**Phase 2 Complete!** 🎉 Opacity now features a fully functional dual-pane file manager with advanced search, file comparison, batch operations, and extensive customization options.
+**Phase 4 Complete!** 🎉 Opacity now features a comprehensive file manager with advanced search, cloud integration, plugin architecture, and enterprise-grade reliability features.
 
 For detailed implementation progress and phase-specific tasks, see:
 - [_plan/phased-development-plan.md](_plan/phased-development-plan.md) – Detailed phase requirements
@@ -245,6 +299,14 @@ For detailed implementation progress and phase-specific tasks, see:
 - ✅ Customizable themes and keyboard shortcuts
 - ✅ Real-time directory monitoring
 - ✅ Rich file previews (images, text)
+- ✅ Archive management (ZIP, RAR, 7z)
+- ✅ System tray integration and notifications
+- ✅ Command palette for quick actions
+- ✅ Plugin architecture for extensibility
+- ✅ Network drive and UNC path support
+- ✅ Cloud storage sync status (OneDrive, Dropbox, Google Drive)
+- ✅ Full-text content indexing and search
+- ✅ Crash recovery and auto-save functionality
 
 ## Quick Commands
 

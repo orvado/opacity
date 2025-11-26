@@ -1,6 +1,7 @@
 add_library(opacity_search
     SearchEngine.cpp
     FilterEngine.cpp
+    SearchIndex.cpp
 )
 
 target_include_directories(opacity_search 

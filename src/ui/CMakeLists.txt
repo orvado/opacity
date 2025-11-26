@@ -9,6 +9,7 @@ add_library(opacity_ui
     AdvancedSearchDialog.cpp
     DiffViewer.cpp
     CommandPalette.cpp
+    SystemTray.cpp
 )
 
 target_include_directories(opacity_ui 
@@ -27,6 +28,7 @@ target_link_libraries(opacity_ui
     d3d11
     dxgi
     d3dcompiler
+    shell32
 )
 
 set_target_properties(opacity_ui PROPERTIES
