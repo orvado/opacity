@@ -3,6 +3,7 @@
 #include "opacity/core/Path.h"
 
 #include <imgui.h>
+#include "opacity/ui/ImGuiScoped.h"
 
 #define NOMINMAX
 #include <Windows.h>
@@ -575,6 +576,7 @@ void MainWindow::RenderFilePanel()
             ImGui::TableSetupColumn("Modified", ImGuiTableColumnFlags_WidthFixed, 150.0f);
             ImGui::TableSetupScrollFreeze(0, 1);
             ImGui::TableHeadersRow();
+            bool navigated = false;
 
             // Handle sorting
             if (ImGuiTableSortSpecs* sort_specs = ImGui::TableGetSortSpecs())
@@ -683,6 +685,10 @@ void MainWindow::RenderFilePanel()
                         if (item.is_directory)
                         {
                             NavigateTo(item.full_path.String());
+                            // Mark that we've navigated; break the rendering loop so we can
+                            // cleanly finish UI/ImGui calls before returning.
+                            navigated = true;
+                            break;
                         }
                         else
                         {
@@ -716,12 +722,172 @@ void MainWindow::RenderFilePanel()
             }
 
             ImGui::EndTable();
+            if (navigated)
+                return;
         }
     }
     else // Icon view
     {
-        // TODO: Implement icon view
-        ImGui::TextUnformatted("Icon view not yet implemented");
+        // Calculate icon size based on setting
+        float icon_size_px = 64.0f;
+        switch (icon_size_)
+        {
+        case 0: icon_size_px = 32.0f; break;  // Small
+        case 1: icon_size_px = 64.0f; break;  // Medium
+        case 2: icon_size_px = 128.0f; break; // Large
+        }
+
+        float item_width = icon_size_px + 16.0f;
+        float item_height = icon_size_px + 32.0f;
+        float window_width = ImGui::GetContentRegionAvail().x;
+        int items_per_row = std::max(1, static_cast<int>(window_width / item_width));
+
+        ImGui::BeginChild("##IconView", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+        bool navigated = false;
+
+        for (size_t i = 0; i < current_items_.size(); ++i)
+        {
+            const auto& item = current_items_[i];
+
+            // Arrange items in a grid
+            if (i % items_per_row != 0)
+                ImGui::SameLine();
+
+            // Use RAII helpers to ensure PushID/PopID and BeginGroup/EndGroup pairing
+            opacity::ui::ImGuiScopedGroup scoped_group;
+            opacity::ui::ImGuiScopedID scoped_id(static_cast<int>(i));
+
+            bool is_selected = (i < selection_.size()) && selection_[i];
+
+            // Get current cursor position for drawing
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            
+            // Draw selection highlight
+            if (is_selected)
+            {
+                draw_list->AddRectFilled(
+                    pos,
+                    ImVec2(pos.x + item_width - 8.0f, pos.y + item_height),
+                    IM_COL32(100, 149, 237, 100)  // Light blue selection
+                );
+            }
+
+            // Draw icon placeholder (folder = yellow, file = gray)
+            ImU32 icon_color = item.is_directory ? IM_COL32(255, 200, 100, 255) : IM_COL32(200, 200, 200, 255);
+            float icon_left = pos.x + (item_width - icon_size_px) / 2 - 4.0f;
+            draw_list->AddRectFilled(
+                ImVec2(icon_left, pos.y),
+                ImVec2(icon_left + icon_size_px, pos.y + icon_size_px),
+                icon_color,
+                4.0f  // Rounded corners
+            );
+
+            // Draw folder/file symbol inside icon
+            if (item.is_directory)
+            {
+                // Draw a simple folder tab
+                float tab_width = icon_size_px * 0.4f;
+                float tab_height = icon_size_px * 0.15f;
+                draw_list->AddRectFilled(
+                    ImVec2(icon_left + 2.0f, pos.y + 2.0f),
+                    ImVec2(icon_left + tab_width, pos.y + tab_height + 2.0f),
+                    IM_COL32(220, 170, 80, 255),
+                    2.0f
+                );
+            }
+
+            // Invisible button for click handling
+            if (ImGui::InvisibleButton("##item", ImVec2(item_width - 8.0f, item_height)))
+            {
+                bool ctrl = ImGui::GetIO().KeyCtrl;
+                bool shift = ImGui::GetIO().KeyShift;
+                
+                if (ctrl)
+                {
+                    // Toggle selection
+                    if (i < selection_.size())
+                        selection_[i] = !selection_[i];
+                }
+                else if (shift && selected_index_ >= 0)
+                {
+                    // Range selection
+                    size_t start = std::min(static_cast<size_t>(selected_index_), i);
+                    size_t end = std::max(static_cast<size_t>(selected_index_), i);
+                    for (size_t j = 0; j < selection_.size(); ++j)
+                        selection_[j] = (j >= start && j <= end);
+                }
+                else
+                {
+                    // Single selection - clear all and select this one
+                    std::fill(selection_.begin(), selection_.end(), false);
+                    if (i < selection_.size())
+                        selection_[i] = true;
+                }
+                selected_index_ = static_cast<int>(i);
+            }
+
+            // Handle double-click to open
+            // Ensure selection vector is sized correctly for icon view
+            if (selection_.size() != current_items_.size())
+            {
+                selection_.resize(current_items_.size(), false);
+            }
+
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            {
+                if (item.is_directory)
+                {
+                    NavigateTo(item.full_path.String());
+                    navigated = true;
+                    break;
+                }
+                else
+                {
+                    // Open file with default application
+                    ShellExecuteW(NULL, L"open", 
+                        item.full_path.WString().c_str(),
+                        NULL, NULL, SW_SHOWNORMAL);
+                }
+            }
+
+            // Show tooltip on hover
+                if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text("%s", item.name.c_str());
+                if (!item.is_directory)
+                {
+                    ImGui::Text("Size: %s", item.GetFormattedSize().c_str());
+                }
+                ImGui::Text("Modified: %s", item.GetFormattedModifiedDate().c_str());
+                ImGui::EndTooltip();
+            }
+
+            // Render item name (truncated if too long)
+            ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + icon_size_px + 4.0f));
+            
+            std::string display_name = item.name;
+            size_t max_chars = static_cast<size_t>(item_width / 7.0f);  // Approximate chars that fit
+            if (display_name.length() > max_chars)
+            {
+                display_name = display_name.substr(0, max_chars - 3) + "...";
+            }
+            
+            // Center the text
+            float text_width = ImGui::CalcTextSize(display_name.c_str()).x;
+            float text_offset = (item_width - 8.0f - text_width) / 2.0f;
+            if (text_offset > 0)
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + text_offset);
+            
+            ImGui::TextUnformatted(display_name.c_str());
+
+            // Scoped objects will handle PopID/EndGroup automatically
+        }
+
+        ImGui::EndChild();
+        if (navigated)
+            return;
     }
 }
 

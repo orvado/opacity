@@ -203,9 +203,9 @@ namespace opacity::filesystem
 
     private:
         void ExecuteOperation();
-        bool CopyFile(const core::Path& source, const core::Path& dest);
-        bool MoveFile(const core::Path& source, const core::Path& dest);
-        bool DeleteFile(const core::Path& path);
+        bool CopyFileInternal(const core::Path& source, const core::Path& dest);
+        bool MoveFileInternal(const core::Path& source, const core::Path& dest);
+        bool DeleteFileInternal(const core::Path& path);
         ConflictResolution HandleConflict(const FileConflict& conflict);
         core::Path GenerateUniqueName(const core::Path& path);
 

@@ -2,6 +2,7 @@
 #include "opacity/core/Logger.h"
 
 #include <imgui.h>
+#include "opacity/ui/ImGuiScoped.h"
 #include <algorithm>
 #include <cctype>
 
@@ -379,7 +380,7 @@ namespace opacity::ui
     {
         bool was_interacted = false;
 
-        ImGui::PushID(id_.id);
+        opacity::ui::ImGuiScopedID pane_id(id_.id);
 
         // Check for focus
         if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(0))
@@ -399,7 +400,7 @@ namespace opacity::ui
             break;
         }
 
-        ImGui::PopID();
+        // RAII handles PopID
 
         return was_interacted;
     }
@@ -547,8 +548,9 @@ namespace opacity::ui
             if (i % items_per_row != 0)
                 ImGui::SameLine();
 
-            ImGui::BeginGroup();
-            ImGui::PushID(static_cast<int>(i));
+            // Use RAII helpers to ensure PushID/PopID and BeginGroup/EndGroup pairing
+            opacity::ui::ImGuiScopedGroup scoped_group;
+            opacity::ui::ImGuiScopedID scoped_id(static_cast<int>(i));
 
             bool is_selected = IsSelected(i);
 
@@ -604,8 +606,7 @@ namespace opacity::ui
             }
             ImGui::TextUnformatted(display_name.c_str());
 
-            ImGui::PopID();
-            ImGui::EndGroup();
+            // Let RAII destructors pop id and end group
         }
 
         ImGui::EndChild();

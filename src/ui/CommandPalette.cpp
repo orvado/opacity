@@ -6,6 +6,7 @@
 #include <set>
 
 #include "imgui.h"
+#include "opacity/ui/ImGuiScoped.h"
 
 namespace opacity::ui
 {
@@ -436,7 +437,7 @@ namespace opacity::ui
 
                 bool is_selected = (static_cast<int>(i) == selected_index_);
 
-                ImGui::PushID(static_cast<int>(i));
+                opacity::ui::ImGuiScopedID scoped_id(static_cast<int>(i));
 
                 // Selectable for the entire row
                 if (ImGui::Selectable("##item", is_selected, 
@@ -446,7 +447,6 @@ namespace opacity::ui
                     if (ImGui::IsMouseDoubleClicked(0))
                     {
                         ExecuteSelected();
-                        ImGui::PopID();
                         ImGui::EndChild();
                         ImGui::End();
                         return false;
@@ -454,7 +454,7 @@ namespace opacity::ui
                 }
 
                 ImGui::SameLine(5);
-                ImGui::BeginGroup();
+                opacity::ui::ImGuiScopedGroup scoped_group;
 
                 // Category badge
                 if (!match.command->category.empty())
@@ -482,8 +482,7 @@ namespace opacity::ui
                         "%s", match.command->description.c_str());
                 }
 
-                ImGui::EndGroup();
-                ImGui::PopID();
+                // RAII will end the group and pop the id
             }
 
             if (current_results_.empty())

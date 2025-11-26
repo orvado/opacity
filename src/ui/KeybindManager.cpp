@@ -2,6 +2,7 @@
 #include "opacity/core/Logger.h"
 
 #include <imgui.h>
+#include "opacity/ui/ImGuiScoped.h"
 #include <algorithm>
 #include <sstream>
 #include <cctype>
@@ -598,7 +599,7 @@ namespace opacity::ui
                 }
 
                 ImGui::TableNextColumn();
-                ImGui::PushID(cmd.id.c_str());
+                opacity::ui::ImGuiScopedID scoped_id_cmd(cmd.id.c_str());
                 
                 if (cmd.allow_rebind)
                 {
@@ -614,7 +615,7 @@ namespace opacity::ui
                     }
                 }
                 
-                ImGui::PopID();
+                // RAII will pop ID
             }
 
             ImGui::EndTable();
@@ -681,7 +682,7 @@ namespace opacity::ui
                 const auto& cmd = matches[i];
                 auto keybind = GetKeybind(cmd.id);
 
-                ImGui::PushID(static_cast<int>(i));
+                opacity::ui::ImGuiScopedID scoped_id_i(static_cast<int>(i));
                 
                 if (ImGui::Selectable("##cmd", false, ImGuiSelectableFlags_None, ImVec2(0, 24)))
                 {
@@ -699,7 +700,7 @@ namespace opacity::ui
                     ImGui::TextDisabled("%s", keybind->ToString().c_str());
                 }
 
-                ImGui::PopID();
+                // RAII handles PopID
             }
 
             ImGui::EndChild();

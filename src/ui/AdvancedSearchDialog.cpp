@@ -2,6 +2,7 @@
 #include "opacity/core/Logger.h"
 
 #include <imgui.h>
+#include "opacity/ui/ImGuiScoped.h"
 #include <algorithm>
 #include <sstream>
 
@@ -268,7 +269,7 @@ namespace opacity::ui
         {
             const auto& search = saved_searches_[i];
             
-            ImGui::PushID(static_cast<int>(i));
+            opacity::ui::ImGuiScopedID scoped_id(static_cast<int>(i));
             
             if (ImGui::Selectable(search.name.c_str()))
             {
@@ -294,7 +295,7 @@ namespace opacity::ui
                 ImGui::EndPopup();
             }
 
-            ImGui::PopID();
+            // RAII will pop ID
         }
 
         ImGui::EndChild();

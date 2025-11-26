@@ -2,6 +2,7 @@
 #include "opacity/core/Logger.h"
 
 #include <imgui.h>
+#include "opacity/ui/ImGuiScoped.h"
 #include <fstream>
 #include <filesystem>
 
@@ -131,7 +132,7 @@ namespace opacity::filesystem
                     {
                         dest = item.destination;
                     }
-                    item_success = CopyFile(item.source, dest);
+                    item_success = CopyFileInternal(item.source, dest);
                 }
                 break;
 
@@ -146,16 +147,16 @@ namespace opacity::filesystem
                     {
                         dest = item.destination;
                     }
-                    item_success = MoveFile(item.source, dest);
+                    item_success = MoveFileInternal(item.source, dest);
                 }
                 break;
 
             case OperationType::Delete:
-                item_success = DeleteFile(item.source);
+                item_success = DeleteFileInternal(item.source);
                 break;
 
             case OperationType::Rename:
-                item_success = MoveFile(item.source, item.destination);
+                item_success = MoveFileInternal(item.source, item.destination);
                 break;
             }
 
@@ -218,7 +219,7 @@ namespace opacity::filesystem
             on_completion_(success, error_message);
     }
 
-    bool BatchOperation::CopyFile(const core::Path& source, const core::Path& dest)
+    bool BatchOperation::CopyFileInternal(const core::Path& source, const core::Path& dest)
     {
         try
         {
@@ -280,7 +281,7 @@ namespace opacity::filesystem
         }
     }
 
-    bool BatchOperation::MoveFile(const core::Path& source, const core::Path& dest)
+    bool BatchOperation::MoveFileInternal(const core::Path& source, const core::Path& dest)
     {
         try
         {
@@ -328,7 +329,7 @@ namespace opacity::filesystem
         }
     }
 
-    bool BatchOperation::DeleteFile(const core::Path& path)
+    bool BatchOperation::DeleteFileInternal(const core::Path& path)
     {
         try
         {
@@ -592,7 +593,7 @@ namespace opacity::filesystem
             auto progress = op->GetProgress();
             auto status = op->GetStatus();
 
-            ImGui::PushID(static_cast<int>(i));
+            opacity::ui::ImGuiScopedID scoped_id(static_cast<int>(i));
 
             // Status color
             ImVec4 status_color;
@@ -663,7 +664,7 @@ namespace opacity::filesystem
             }
 
             ImGui::Separator();
-            ImGui::PopID();
+            // RAII will pop ID
         }
 
         // Queue controls
