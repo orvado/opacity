@@ -4,7 +4,7 @@ A modern, high-performance file manager for Windows, built with C++ and Dear ImG
 
 ## Project Status
 
-**Current Phase:** Phase 4: Polish & Extensibility Complete ✅  
+**Current Phase:** Phase 5: Production Readiness & Enterprise Features ✅  
 **Target Platform:** Windows 10+  
 **Language:** C++17/20  
 **GUI Framework:** Dear ImGui with DirectX 11
@@ -15,7 +15,7 @@ A modern, high-performance file manager for Windows, built with C++ and Dear ImG
 - ✅ **Dual-Pane Interface** – Independent navigation with synchronized operations (Phase 2)
 - ✅ **Tabbed Browsing** – Multiple tabs per pane with history (Phase 1)
 - ✅ **Advanced Search** – Name, content, size, date, attribute-based search (Phase 2)
-- ✅ **Rich Previews** – Images, video, audio, text with syntax highlighting (Phases 1-2)
+- ✅ **Rich Previews** – Images, video, audio, text with syntax highlighting (Phases 1-4)
 - ✅ **File/Folder Diff** – Compare files and folders visually (Phase 2-3)
 - ✅ **Batch Operations** – Rename, copy, move, delete with progress (Phase 1-2)
 - ✅ **Customization** – Themes, hotkeys, layouts, presets (Phases 1-3)
@@ -25,6 +25,11 @@ A modern, high-performance file manager for Windows, built with C++ and Dear ImG
 - ✅ **Network & Cloud** – UNC paths, OneDrive/Dropbox sync status, FTP support (Phase 4)
 - ✅ **Advanced Indexing** – Full-text search with content indexing (Phase 4)
 - ✅ **Crash Recovery** – Auto-save, session recovery, crash dumps (Phase 4)
+- ✅ **Bookmarks & Favorites** – Quick access locations with keyboard shortcuts (Phase 5)
+- ✅ **Session Management** – Save and restore complete application state (Phase 5)
+- ✅ **File Tags & Labels** – User-defined tags with color coding (Phase 5)
+- ✅ **Localization** – Multi-language support infrastructure (Phase 5)
+- ✅ **Auto-Update** – Check and install updates from GitHub Releases (Phase 5)
 
 ## Architecture
 
@@ -35,7 +40,12 @@ Opacity/
 │   ├── Config (JSON-based settings)
 │   ├── Path (filesystem abstraction)
 │   ├── PluginManager (DLL plugin system)
-│   └── CrashRecovery (auto-save, crash dumps)
+│   ├── CrashRecovery (auto-save, crash dumps)
+│   ├── BookmarkManager (favorites, quick access)
+│   ├── SessionManager (workspace state persistence)
+│   ├── TagManager (file tagging system)
+│   ├── Localization (i18n support)
+│   └── UpdateManager (auto-update system)
 ├── Filesystem Subsystem
 │   ├── FsItem (file/folder model)
 │   ├── FileSystemManager (operations)
@@ -62,7 +72,9 @@ Opacity/
 │   ├── PreviewManager (handler coordination)
 │   ├── ImagePreviewHandler
 │   ├── TextPreviewHandler
-│   └── (Media handlers – Phase 2+)
+│   ├── MediaPreviewHandler (video, audio)
+│   ├── DocumentPreviewHandler (PDF, Office)
+│   └── HexPreviewHandler (binary files)
 ├── Archive Subsystem
 │   ├── ArchiveManager (ZIP, RAR, 7z)
 │   └── BatchRename (bulk operations)
@@ -131,7 +143,16 @@ For detailed setup instructions, see [BUILD_SETUP.md](BUILD_SETUP.md).
 - ✅ System tray integration with notifications
 - ✅ Comprehensive error handling and logging
 
+### Phase 5: Production Readiness & Enterprise Features (6-8 weeks) ✅ COMPLETE
+- ✅ Bookmarks and favorites system with quick access panel
+- ✅ Session and workspace management with auto-save
+- ✅ File tags and labels with color coding
+- ✅ Localization and internationalization support
+- ✅ Application update mechanism with GitHub Releases
+- ✅ Advanced media preview handlers (video, audio, documents, hex)
+
 See [_plan/phased-development-plan.md](_plan/phased-development-plan.md) for detailed phase requirements.
+See [_plan/phase-5-specification.md](_plan/phase-5-specification.md) for Phase 5 specification.
 
 ## Phase 2 Features Implemented
 
@@ -186,6 +207,22 @@ See [_plan/phased-development-plan.md](_plan/phased-development-plan.md) for det
 - **SearchIndex**: Full-text content indexing with trigram search
 - **CrashRecovery**: Auto-save, session recovery, crash dump generation
 - **Error Handling**: Comprehensive logging and error recovery
+
+## Phase 5 Features Implemented
+
+### User Experience & Productivity
+- **BookmarkManager**: Favorite locations with categories and keyboard shortcuts
+- **SessionManager**: Save/restore complete application state with auto-save
+- **TagManager**: File tagging system with colors, smart rules, and filtering
+
+### Media Previews
+- **MediaPreviewHandler**: Video/audio preview with Media Foundation
+- **DocumentPreviewHandler**: PDF and Office document preview
+- **HexPreviewHandler**: Binary file inspection with magic signatures
+
+### Internationalization & Updates
+- **Localization**: Multi-language support with JSON string tables
+- **UpdateManager**: Auto-update system with GitHub Releases integration
 
 ## Documentation
 
